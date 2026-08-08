@@ -1,10 +1,8 @@
+#monorepo
 .yarn
-*/node_modules/*
 .yarn/*
-node_modules
 
-
-------
+# ------
 # manual next js gitignore :
 
 # Created by https://www.toptal.com/developers/gitignore/api/nextjs

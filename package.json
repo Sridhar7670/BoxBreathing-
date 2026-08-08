@@ -1,0 +1,17 @@
+{
+  "name": "boxbreathing",
+  "private": true,
+  "packageManager": "yarn@4.9.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "yarn workspace web dev",
+    "dev:api": "yarn workspace api start:dev",
+    "build:web": "yarn workspace web build",
+    "build:api": "yarn workspace api build",
+    "lint:web": "yarn workspace web lint",
+    "lint:api": "yarn workspace api lint"
+  }
+}

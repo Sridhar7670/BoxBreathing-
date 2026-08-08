@@ -79,38 +79,58 @@ This project was built to:
 ---
 
 ##  Project Structure
-
 ```
 box-breathing-app/
+│
 ├── apps/
-│   ├── web/                     # Next.js frontend
-│   │   ├── app/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx         # Home → selection → session
-│   │   ├── components/
-│   │   │   ├── program-selection.tsx
-│   │   │   ├── timer-selection.tsx
-│   │   │   └── breathing-exercise.tsx
-│   │   ├── lib/                 # Utilities
+│   │
+│   ├── web/                         # Next.js
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   │   ├── page.tsx
+│   │   │   │   ├── login/
+│   │   │   │   ├── session/
+│   │   │   │   └── stats/
+│   │   │   │
+│   │   │   ├── components/
+│   │   │   │   ├── breathing/
+│   │   │   │   ├── session/
+│   │   │   │   ├── stats/
+│   │   │   │   └── ui/
+│   │   │   │
+│   │   │   ├── lib/
+│   │   │   ├── hooks/
+│   │   │   └── types/
+│   │   │
 │   │   ├── package.json
 │   │   └── .env.local
-│   └── api/                     # NestJS backend
+│   │
+│   └── api/                         # NestJS
 │       ├── src/
 │       │   ├── modules/
-│       │   │   └── sessions/
-│       │   │       ├── sessions.controller.ts
-│       │   │       ├── sessions.service.ts
-│       │   │       └── sessions.entity.ts
-│       │   ├── main.ts
-│       │   └── app.module.ts
+│       │   │   ├── auth/
+│       │   │   ├── users/
+│       │   │   ├── sessions/
+│       │   │   └── stats/
+│       │   │
+│       │   ├── app.module.ts
+│       │   └── main.ts
+│       │
 │       ├── package.json
 │       └── .env
+│
 ├── packages/
-│   └── shared/                  # Shared types/validations
-├── docker-compose.yml           # (Optional) For local containerization
-└── package.json                 # Root package.json (if using workspaces)
+│   ├── shared/
+│   │   ├── types/
+│   │   └── schemas/
+│   │
+│   └── config/
+│
+├── docker-compose.yml
+├── pnpm-workspace.yaml
+├── package.json
+└── README.md
 ```
-
 ---
 
 ##  Getting Started

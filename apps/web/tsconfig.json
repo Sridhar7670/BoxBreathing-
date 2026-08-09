@@ -13,8 +13,14 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"],
+      "@/apps/lib/*": ["../lib/*"]
     }
   },
   "include": [

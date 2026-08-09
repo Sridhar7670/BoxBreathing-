@@ -13,5 +13,9 @@
     "build:api": "yarn workspace api build",
     "lint:web": "yarn workspace web lint",
     "lint:api": "yarn workspace api lint"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
   }
 }

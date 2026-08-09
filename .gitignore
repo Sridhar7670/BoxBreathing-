@@ -1,7 +1,7 @@
 #monorepo
 .yarn
 .yarn/*
-
+.vscode
 # ------
 # manual next js gitignore :
 

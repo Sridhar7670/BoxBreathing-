@@ -12,7 +12,9 @@ export default function Footer() {
           </p>
           <div className="pt-2">
             <a
-              href="mailto:hello@example.com"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=sridharnani080@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-6 py-3 bg-[#7D9B76] hover:bg-[#688262] text-white rounded-full font-medium transition-colors"
             >
               Contact Me

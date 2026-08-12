@@ -1,0 +1,29 @@
+@reference "../../app/globals.css";
+
+/* Hero block at the top of the page: eyebrow, headline, supporting paragraph. */
+
+.About {
+  @apply px-6 py-12 md:py-20 max-w-2xl;
+}
+
+/* Small uppercase label above the headline ("4-4-4-4 Guided timer"). */
+.AboutEyebrow {
+  @apply text-xs uppercase tracking-[0.2em] font-medium text-[#4b554b] mb-6;
+}
+
+.AboutContent {
+  @apply flex flex-col gap-6;
+}
+
+.AboutHeading {
+  @apply text-4xl md:text-5xl lg:text-[56px] font-semibold text-[#2C3328] leading-[1.1] tracking-tight;
+}
+
+/* Line break inside the headline: only splits the line on small screens and up. */
+.AboutHeadingBreak {
+  @apply hidden sm:block;
+}
+
+.AboutLead {
+  @apply text-lg md:text-xl text-[#4b554b] leading-relaxed max-w-lg;
+}

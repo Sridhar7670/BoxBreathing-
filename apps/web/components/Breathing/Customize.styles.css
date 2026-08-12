@@ -1,0 +1,96 @@
+@reference "../../app/globals.css";
+
+/* Settings panel: phase-length sliders, session duration, metronome, start button. */
+
+.Customize {
+  @apply bg-[#E4EBE0] p-8 md:p-9 rounded-[32px] w-full shadow-sm border border-[#D3DEC0]/40;
+}
+
+.CustomizeHeading {
+  @apply text-2xl font-bold text-[#2C3328] mb-1.5;
+}
+
+.CustomizeIntro {
+  @apply text-[#556152] text-sm mb-7 leading-relaxed;
+}
+
+/* ---- Phase length sliders ---- */
+
+.CustomizeSliders {
+  @apply space-y-6 mb-8;
+}
+
+.SliderRow {
+  @apply space-y-2;
+}
+
+.SliderLabelRow {
+  @apply flex justify-between items-center;
+}
+
+.SliderLabel {
+  @apply font-semibold text-[#2C3328] text-base;
+}
+
+/* Rounded badge showing the current value, e.g. "4s". */
+.SliderValue {
+  @apply bg-[#D3E0CE] text-[#2C3328] text-xs font-semibold px-3 py-1 rounded-full;
+}
+
+.SliderTrack {
+  @apply relative flex items-center h-5;
+}
+
+/* The track's fill colour is set inline from JS, since it depends on the value. */
+.SliderInput {
+  @apply w-full h-2.5 rounded-full appearance-none cursor-pointer outline-none transition-all
+    [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+    [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md
+    [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#B8C8B3];
+}
+
+/* ---- Option groups (session duration, metronome) ---- */
+
+.CustomizeFieldDuration {
+  @apply mb-7;
+}
+
+.CustomizeFieldMetronome {
+  @apply mb-9;
+}
+
+.CustomizeFieldLabel {
+  @apply block font-semibold text-[#2C3328] text-base mb-3;
+}
+
+.CustomizeOptions {
+  @apply flex flex-wrap gap-2.5;
+}
+
+/* Shared shape for every option pill; exactly one colour modifier is added. */
+.PillButton {
+  @apply px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer;
+}
+
+.PillButtonSelected {
+  @apply bg-[#6A8466] text-white shadow-xs;
+}
+
+.PillButtonIdle {
+  @apply bg-[#F3F6F1] text-[#2C3328] hover:bg-[#E4ECE0];
+}
+
+/* ---- Start / pause button ---- */
+
+.StartButton {
+  @apply w-full py-4 px-6 rounded-full font-semibold text-lg transition-all cursor-pointer shadow-sm text-white;
+}
+
+/* Red while a session is running, so the button reads as "stop this". */
+.StartButtonActive {
+  @apply bg-[#D96B6B] hover:bg-[#C55757];
+}
+
+.StartButtonIdle {
+  @apply bg-[#6A8466] hover:bg-[#597255];
+}

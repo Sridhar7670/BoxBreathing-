@@ -1,0 +1,54 @@
+@reference "../../app/globals.css";
+
+/* Two side-by-side columns: numbered "Instructions" steps, and selectable patterns. */
+
+.Instructions {
+  @apply px-8 py-12 md:py-16 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 border-b border-[#E3E1D5];
+}
+
+/* Shared by both column headings ("Instructions" and "Try a pattern"). */
+.InstructionsHeading {
+  @apply text-3xl font-semibold text-[#2C3328] mb-8;
+}
+
+.InstructionsList {
+  @apply space-y-6;
+}
+
+.InstructionStep {
+  @apply flex gap-4 items-start;
+}
+
+/* Green circle holding the step number; must not shrink when the text wraps. */
+.InstructionStepNumber {
+  @apply flex-shrink-0 w-8 h-8 rounded-full bg-[#7D9B76] text-white flex items-center justify-center font-medium mt-1;
+}
+
+.InstructionStepText {
+  @apply text-[#4B554B] text-lg leading-relaxed;
+}
+
+/* "Try a pattern" column: heading sits tighter here because a subtitle follows. */
+.PatternsHeading {
+  @apply text-3xl font-semibold text-[#2C3328] mb-2;
+}
+
+.PatternsSubtitle {
+  @apply text-[#4B554B] mb-6 text-lg;
+}
+
+.PatternsList {
+  @apply space-y-4;
+}
+
+.PatternCard {
+  @apply bg-[#EAECE4] p-6 rounded-2xl cursor-pointer hover:bg-[#DFE2D8] transition-colors border border-[#D1D5C9];
+}
+
+.PatternCardTitle {
+  @apply text-xl font-semibold text-[#2C3328] mb-1;
+}
+
+.PatternCardText {
+  @apply text-[#4B554B] text-base;
+}

@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/cards";
+import "./HowItWorks.styles.css";
 
 export default function HowItWorks() {
   const howItWorksCards = [
@@ -49,16 +50,16 @@ export default function HowItWorks() {
   ];
 
   return (
-    <div className="px-8 py-12 md:py-16 mx-auto max-w-5xl space-y-16">
+    <div className="HowItWorks">
       {/* How it works section */}
       <section>
-        <h2 className="text-3xl font-semibold text-[#2C3328] mb-4">How it works</h2>
-        <p className="text-[#4B554B] text-lg max-w-3xl mb-8 leading-relaxed">
+        <h2 className="HowItWorksHeading">How it works</h2>
+        <p className="HowItWorksIntro">
           Box breathing slows your breath into a steady, rhythmic cycle with equal
           time in each phase. Keeping the phases balanced holds your oxygen and
           carbon dioxide levels steady and prevents over-breathing.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="HowItWorksGrid">
           {howItWorksCards.map((card, index) => (
             <Card
               key={index}
@@ -71,8 +72,8 @@ export default function HowItWorks() {
 
       {/* Benefits section */}
       <section>
-        <h2 className="text-3xl font-semibold text-[#2C3328] mb-8">Benefits</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h2 className="BenefitsHeading">Benefits</h2>
+        <div className="BenefitsGrid">
           {benefitCards.map((card, index) => (
             <Card
               key={index}

@@ -1,135 +1,108 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Breathable from "./Breathable";
 import Customize from "./Customize";
 import { PhaseType } from "./breathing.types";
+import { getNextPhase, playMetronomeBeep } from "./breathing.utils";
+import "./Breathing.styles.css";
+
+const DEFAULT_PHASE_SECONDS = 4;
+const DEFAULT_SESSION_MINUTES = 5;
+const TICK_INTERVAL_MS = 1000;
 
 export default function Breathing() {
-  // Settings state
-  const [inhaleTime, setInhaleTime] = useState<number>(4);
-  const [holdTime, setHoldTime] = useState<number>(4);
-  const [exhaleTime, setExhaleTime] = useState<number>(4);
-  const [pauseTime, setPauseTime] = useState<number>(4);
-  const [sessionDuration, setSessionDuration] = useState<number>(5); // in minutes
-  const [metronome, setMetronome] = useState<string>("Off");
+  // How long each phase of a round lasts, in seconds.
+  const [inhaleTime, setInhaleTime] = useState(DEFAULT_PHASE_SECONDS);
+  const [holdTime, setHoldTime] = useState(DEFAULT_PHASE_SECONDS);
+  const [exhaleTime, setExhaleTime] = useState(DEFAULT_PHASE_SECONDS);
+  const [pauseTime, setPauseTime] = useState(DEFAULT_PHASE_SECONDS);
 
-  // Timer & Phase state
-  const [isActive, setIsActive] = useState<boolean>(false);
+  // Session-wide settings.
+  const [sessionDuration, setSessionDuration] = useState(DEFAULT_SESSION_MINUTES); // minutes
+  const [metronome, setMetronome] = useState("Off");
+
+  // Where we currently are in the session.
+  const [isActive, setIsActive] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<PhaseType>("Inhale");
-  const [phaseTimeLeft, setPhaseTimeLeft] = useState<number>(4);
-  const [totalElapsedSeconds, setTotalElapsedSeconds] = useState<number>(0);
+  const [phaseTimeLeft, setPhaseTimeLeft] = useState(DEFAULT_PHASE_SECONDS);
+  const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
 
-  // Audio Context for optional Metronome beep
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  const phaseDurations: Record<PhaseType, number> = {
+    Inhale: inhaleTime,
+    Hold: holdTime,
+    Exhale: exhaleTime,
+    Pause: pauseTime,
+  };
 
   const totalDurationSeconds = sessionDuration * 60;
-  const singleRoundDuration = inhaleTime + holdTime + exhaleTime + pauseTime;
-  const totalRounds = Math.max(1, Math.round(totalDurationSeconds / Math.max(1, singleRoundDuration)));
-  const currentRound = Math.min(totalRounds, Math.floor(totalElapsedSeconds / Math.max(1, singleRoundDuration)) + 1);
+  const roundDurationSeconds = Math.max(1, inhaleTime + holdTime + exhaleTime + pauseTime);
 
-  const playBeep = () => {
-    if (metronome === "Off") return;
-    try {
-      if (!audioCtxRef.current) {
-        const AudioContextClass =
-          window.AudioContext ||
-          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-        audioCtxRef.current = new AudioContextClass();
-      }
-      const ctx = audioCtxRef.current;
-      if (ctx.state === "suspended") {
-        ctx.resume();
-      }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+  // How many full rounds fit in the session, and which one we are on right now.
+  const totalRounds = Math.max(1, Math.round(totalDurationSeconds / roundDurationSeconds));
+  const currentRound = Math.min(
+    totalRounds,
+    Math.floor(totalElapsedSeconds / roundDurationSeconds) + 1
+  );
 
-      const volumeMap: Record<string, number> = { Soft: 0.05, Med: 0.15, Loud: 0.3 };
-      gain.gain.value = volumeMap[metronome] || 0.1;
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(440, ctx.currentTime);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.08);
-    } catch {
-      // Fallthrough
-    }
-  };
-
-  const getPhaseDuration = (phase: PhaseType) => {
-    switch (phase) {
-      case "Inhale":
-        return inhaleTime;
-      case "Hold":
-        return holdTime;
-      case "Exhale":
-        return exhaleTime;
-      case "Pause":
-        return pauseTime;
-    }
-  };
-
-  // Sync phaseTimeLeft when sliders change while inactive
+  // While the session is paused, the countdown should follow the sliders as they move.
   useEffect(() => {
     if (!isActive) {
-      setPhaseTimeLeft(getPhaseDuration(currentPhase));
+      setPhaseTimeLeft(phaseDurations[currentPhase]);
     }
   }, [inhaleTime, holdTime, exhaleTime, pauseTime, currentPhase, isActive]);
 
-  // Main breathing timer interval logic
+  // The session clock: one tick per second while the session is running.
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    if (!isActive) return;
 
-    if (isActive) {
-      interval = setInterval(() => {
-        setTotalElapsedSeconds((prevTotal) => {
-          if (prevTotal + 1 >= totalDurationSeconds) {
-            setIsActive(false);
-            return totalDurationSeconds;
-          }
-          return prevTotal + 1;
-        });
+    const advanceOneSecond = () => {
+      // Count the second, and stop the session once the full duration is reached.
+      setTotalElapsedSeconds((elapsed) => {
+        if (elapsed + 1 >= totalDurationSeconds) {
+          setIsActive(false);
+          return totalDurationSeconds;
+        }
+        return elapsed + 1;
+      });
 
-        setPhaseTimeLeft((prevPhaseTime) => {
-          playBeep();
-          if (prevPhaseTime > 1) {
-            return prevPhaseTime - 1;
-          }
+      // Count down the current phase, moving to the next phase when it runs out.
+      setPhaseTimeLeft((timeLeft) => {
+        playMetronomeBeep(metronome);
 
-          // Advance to next phase
-          let nextPhase: PhaseType = "Inhale";
-          if (currentPhase === "Inhale") nextPhase = "Hold";
-          else if (currentPhase === "Hold") nextPhase = "Exhale";
-          else if (currentPhase === "Exhale") nextPhase = "Pause";
-          else if (currentPhase === "Pause") nextPhase = "Inhale";
+        if (timeLeft > 1) return timeLeft - 1;
 
-          setCurrentPhase(nextPhase);
-          return getPhaseDuration(nextPhase);
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
+        const nextPhase = getNextPhase(currentPhase);
+        setCurrentPhase(nextPhase);
+        return phaseDurations[nextPhase];
+      });
     };
-  }, [isActive, currentPhase, inhaleTime, holdTime, exhaleTime, pauseTime, totalDurationSeconds, metronome]);
 
-  const handleToggleStart = () => {
-    setIsActive((prev) => !prev);
-  };
+    const interval = setInterval(advanceOneSecond, TICK_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [
+    isActive,
+    currentPhase,
+    inhaleTime,
+    holdTime,
+    exhaleTime,
+    pauseTime,
+    totalDurationSeconds,
+    metronome,
+  ]);
+
+  const handleToggleStart = () => setIsActive((active) => !active);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 md:py-12">
-      {/* 50-50 Equal Column Split on laptops/desktops (md:grid-cols-2), stacked on mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
-        {/* Left Section - Breathable Animation & Status */}
-        <div className="w-full flex justify-center">
+    <div className="BreathingLayout">
+      {/* Two equal columns from md up, stacked on mobile. */}
+      <div className="BreathingGrid">
+        {/* Left: the breathing circle and session status. */}
+        <div className="BreathingColumn">
           <Breathable
             currentPhase={currentPhase}
             phaseTimeLeft={phaseTimeLeft}
-            phaseTotalTime={getPhaseDuration(currentPhase)}
+            phaseTotalTime={phaseDurations[currentPhase]}
             isActive={isActive}
             onToggleStart={handleToggleStart}
             totalElapsedSeconds={totalElapsedSeconds}
@@ -139,8 +112,8 @@ export default function Breathing() {
           />
         </div>
 
-        {/* Right Section - Customize Controls */}
-        <div className="w-full flex justify-center">
+        {/* Right: the settings panel. */}
+        <div className="BreathingColumn">
           <Customize
             inhaleTime={inhaleTime}
             setInhaleTime={setInhaleTime}

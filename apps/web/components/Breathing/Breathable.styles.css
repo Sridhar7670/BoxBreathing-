@@ -1,0 +1,64 @@
+@reference "../../app/globals.css";
+
+/* The breathing circle: phase name, countdown, round progress and session timers. */
+
+.Breathable {
+  @apply flex flex-col items-center justify-center py-6 px-4 w-full select-none;
+}
+
+/* Outer ring — the whole circle is the start/pause target, hence the pointer cursor. */
+.BreathableCircle {
+  @apply relative flex items-center justify-center w-[300px] h-[300px] md:w-[340px] md:h-[340px]
+    rounded-full border border-[#D1DDD0] cursor-pointer hover:border-[#B5C7B3] transition-all my-6;
+}
+
+/* Filled inner circle holding the countdown text. */
+.BreathableCircleInner {
+  @apply flex flex-col items-center justify-center w-[190px] h-[190px] md:w-[210px] md:h-[210px]
+    rounded-full bg-[#E5ECE2] text-center shadow-xs;
+}
+
+.BreathablePhaseLabel {
+  @apply text-[11px] font-bold uppercase tracking-[0.25em] text-[#5A6656] mb-1;
+}
+
+.BreathableCountdown {
+  @apply text-6xl md:text-7xl font-bold text-[#2C3328] my-0.5 font-sans;
+}
+
+.BreathableStatus {
+  @apply text-xs font-medium text-[#5A6656];
+}
+
+.BreathableRound {
+  @apply text-[#2C3328] font-bold text-xl mb-3;
+}
+
+.BreathablePhaseDots {
+  @apply flex items-center gap-2 mb-3;
+}
+
+/* One dot per phase. The active modifier is added for the phase currently running. */
+.PhaseDot {
+  @apply w-2.5 h-2.5 rounded-full transition-colors bg-[#D3E0CE];
+}
+
+.PhaseDotActive {
+  @apply bg-[#6A8466];
+}
+
+.BreathableCaption {
+  @apply text-xs text-[#6A7566] mb-6;
+}
+
+.BreathableTimers {
+  @apply flex items-center gap-6 text-sm text-[#4B554B] font-medium;
+}
+
+.BreathableTimerValue {
+  @apply font-semibold text-[#2C3328] ml-1;
+}
+
+.BreathableTimerDivider {
+  @apply text-[#C2D0BE];
+}

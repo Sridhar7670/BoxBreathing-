@@ -1,13 +1,13 @@
 import Link from "next/link";
-
+import "./Footer.styles.css";
 export default function Footer() {
   return (
-    <footer className="bg-[#f5f3ec] text-[#2C3328] py-16 px-8 md:px-16 ">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+    <footer className="Footer">
+      <div className="UpperBar">
         {/* Left Section */}
-        <div className="space-y-6">
-          <h2 className="text-3xl font-semibold">Let's get in touch</h2>
-          <p className="text-[#4B554B] max-w-md leading-relaxed">
+        <div className="LeftSection">
+          <h2 className="BigFont">Let's get in touch</h2>
+          <p className="FollowUpText">
             Your interest means a lot to me. Thanks for visiting, Feel free to reach out if you have any questions or just want to connect.
           </p>
           <div className="pt-2">
@@ -15,7 +15,7 @@ export default function Footer() {
               href="https://mail.google.com/mail/?view=cm&fs=1&to=sridharnani080@gmail.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-6 py-3 bg-[#7D9B76] hover:bg-[#688262] text-white rounded-full font-medium transition-colors"
+              className="ContactButton"
             >
               Contact Me
             </a>
@@ -23,15 +23,15 @@ export default function Footer() {
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-col md:items-end space-y-6">
-          <div className="text-left md:text-right">
-            <h3 className="text-xl font-medium mb-1">Sridhar Reddy</h3>
-            <p className="text-[#4B554B]">Full Stack Developer — Hyderabad, India</p>
-            <p className="text-[#7D9B76] text-sm mt-2 font-medium"> Built in under 3 days</p>
+        <div className="RightSection">
+          <div className="RightBundle">
+            <h3 className="Name">Sridhar Reddy</h3>
+            <p className="Description">Full Stack Developer — Hyderabad, India</p>
+            <p className="Extra"> Built in under 3 days</p>
           </div>
 
           {/* Social Links */}
-          <div className="flex space-x-5">
+          <div className="Social">
             {/* Github */}
             <a href="https://github.com/Sridhar7670" className="text-[#8e988b] hover:text-[#2C3328] transition-colors">
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -55,7 +55,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="mt-12 pt-8 border-t border-[#E3E1D5] flex flex-col md:flex-row items-center justify-between text-[#8e988b] text-sm max-w-5xl mx-auto">
+      <div className="BottomBar">
         <p>&#169; 2026 Sridhar Reddy. Built with React & Tailwind.</p>
       </div>
     </footer>

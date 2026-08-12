@@ -1,0 +1,16 @@
+@reference "../../app/globals.css";
+
+/* Outer layout for the breathing screen: circle on the left, settings on the right. */
+
+.BreathingLayout {
+  @apply max-w-6xl mx-auto px-6 py-8 md:py-12;
+}
+
+/* Two equal columns from md up, stacked on mobile. */
+.BreathingGrid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center;
+}
+
+.BreathingColumn {
+  @apply w-full flex justify-center;
+}

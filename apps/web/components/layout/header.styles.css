@@ -1,0 +1,13 @@
+@reference "../../app/globals.css";
+
+.header {
+  @apply flex flex-row items-center justify-between border-b border-[#E3E1D5] px-8 py-5;
+}
+
+.Logo{
+    @apply font-semibold text-xl text-[#2C3328]
+}
+
+.header-Button{
+    @apply bg-[#799479] hover:bg-[#6A846A] text-white rounded-full px-5 h-10 font-medium border-none shadow-sm
+}

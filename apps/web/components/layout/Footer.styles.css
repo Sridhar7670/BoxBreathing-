@@ -1,0 +1,48 @@
+@reference "../../app/globals.css";
+
+.Footer {
+  @apply bg-[#f5f3ec] text-[#2C3328] py-16 px-8 md:px-16;
+}
+
+.UpperBar{
+    @apply max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12
+}
+.LeftSection{
+    @apply space-y-6
+}
+.BigFont{
+    @apply text-3xl font-semibold
+}
+.FollowUpText{
+    @apply text-[#4B554B] max-w-md leading-relaxed
+}
+
+.ContactButton{
+   @apply inline-flex items-center justify-center px-6 py-3 bg-[#7D9B76] hover:bg-[#688262] text-white rounded-full font-medium transition-colors
+}
+
+.RightSection{
+    @apply flex flex-col md:items-end space-y-6
+}
+
+.RightBundle{
+    @apply text-left md:text-right
+}
+
+.Name{
+    @apply text-xl font-medium mb-1
+}
+
+.Description{
+    @apply text-[#4B554B]
+}
+
+.Extra{
+    @apply text-[#7D9B76] text-sm mt-2 font-medium
+}
+.Social{
+    @apply flex space-x-5
+}
+.BottomBar{
+   @apply mt-12 pt-8 border-t border-[#E3E1D5] flex flex-col md:flex-row items-center justify-between text-[#8e988b] text-sm max-w-5xl mx-auto
+}

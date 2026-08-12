@@ -1,4 +1,5 @@
 import React from "react";
+import "./Instructions.styles.css";
 
 export default function Instructions() {
   const instructions = [
@@ -26,17 +27,17 @@ export default function Instructions() {
   ];
 
   return (
-    <div className="px-8 py-12 md:py-16 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 border-b border-[#E3E1D5]">
+    <div className="Instructions">
       {/* Instructions */}
       <div>
-        <h2 className="text-3xl font-semibold text-[#2C3328] mb-8">Instructions</h2>
-        <div className="space-y-6">
+        <h2 className="InstructionsHeading">Instructions</h2>
+        <div className="InstructionsList">
           {instructions.map((text, idx) => (
-            <div key={idx} className="flex gap-4 items-start">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#7D9B76] text-white flex items-center justify-center font-medium mt-1">
+            <div key={idx} className="InstructionStep">
+              <div className="InstructionStepNumber">
                 {idx + 1}
               </div>
-              <p className="text-[#4B554B] text-lg leading-relaxed">
+              <p className="InstructionStepText">
                 {text}
               </p>
             </div>
@@ -46,18 +47,15 @@ export default function Instructions() {
 
       {/* Try a pattern */}
       <div>
-        <h2 className="text-3xl font-semibold text-[#2C3328] mb-2">Try a pattern</h2>
-        <p className="text-[#4B554B] mb-6 text-lg">Tap one to load it into the timer above.</p>
-        <div className="space-y-4">
+        <h2 className="PatternsHeading">Try a pattern</h2>
+        <p className="PatternsSubtitle">Tap one to load it into the timer above.</p>
+        <div className="PatternsList">
           {patterns.map((pattern, idx) => (
-            <div
-              key={idx}
-              className="bg-[#EAECE4] p-6 rounded-2xl cursor-pointer hover:bg-[#DFE2D8] transition-colors border border-[#D1D5C9]"
-            >
-              <h3 className="text-xl font-semibold text-[#2C3328] mb-1">
+            <div key={idx} className="PatternCard">
+              <h3 className="PatternCardTitle">
                 {pattern.title}
               </h3>
-              <p className="text-[#4B554B] text-base">{pattern.description}</p>
+              <p className="PatternCardText">{pattern.description}</p>
             </div>
           ))}
         </div>

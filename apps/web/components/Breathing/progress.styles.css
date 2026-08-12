@@ -1,0 +1,52 @@
+@reference "../../app/globals.css";
+
+/* Session progress bar with play/pause and reset controls. */
+
+.Progress {
+  @apply w-full bg-[#E4EBE0] p-6 rounded-[24px] border border-[#D5E0D0] shadow-sm
+    flex flex-col md:flex-row items-center gap-6 justify-between;
+}
+
+.ProgressControls {
+  @apply flex items-center gap-4;
+}
+
+.ProgressPlayButton {
+  @apply w-12 h-12 rounded-full bg-[#6B8566] text-white flex items-center justify-center
+    font-bold text-lg hover:bg-[#5A7355] transition-colors cursor-pointer;
+}
+
+.ProgressIcon {
+  @apply w-5 h-5 fill-current;
+}
+
+/* The play triangle looks off-centre in a circle, so nudge it right. */
+.ProgressIconPlay {
+  @apply ml-0.5;
+}
+
+.ProgressResetButton {
+  @apply px-4 py-2 rounded-full text-xs font-semibold text-[#4B554B]
+    bg-[#D3E0CE] hover:bg-[#C2D2BC] transition-colors cursor-pointer;
+}
+
+.ProgressTime {
+  @apply text-sm font-medium text-[#2C3328];
+}
+
+.ProgressBar {
+  @apply flex-1 w-full flex items-center gap-3;
+}
+
+.ProgressBarTrack {
+  @apply w-full h-3 bg-[#D1DEC9] rounded-full overflow-hidden;
+}
+
+/* Width is set inline from JS, since it tracks the elapsed percentage. */
+.ProgressBarFill {
+  @apply h-full bg-[#6B8566] transition-all duration-300 rounded-full;
+}
+
+.ProgressPercent {
+  @apply text-xs font-semibold text-[#4B554B] w-10 text-right;
+}

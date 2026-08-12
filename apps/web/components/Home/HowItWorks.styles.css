@@ -1,0 +1,29 @@
+@reference "../../app/globals.css";
+
+/* Two stacked sections: "How it works" explainer cards, then "Benefits" cards. */
+
+.HowItWorks {
+  @apply px-8 py-12 md:py-16 mx-auto max-w-5xl space-y-16;
+}
+
+/* Heading sits closer to its intro paragraph, so it uses a smaller bottom margin
+   than the Benefits heading, which is followed directly by its card grid. */
+.HowItWorksHeading {
+  @apply text-3xl font-semibold text-[#2C3328] mb-4;
+}
+
+.HowItWorksIntro {
+  @apply text-[#4B554B] text-lg max-w-3xl mb-8 leading-relaxed;
+}
+
+.HowItWorksGrid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.BenefitsHeading {
+  @apply text-3xl font-semibold text-[#2C3328] mb-8;
+}
+
+.BenefitsGrid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}

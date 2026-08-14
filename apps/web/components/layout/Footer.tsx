@@ -1,4 +1,3 @@
-import Link from "next/link";
 import "./Footer.styles.css";
 export default function Footer() {
   return (
@@ -6,7 +5,7 @@ export default function Footer() {
       <div className="UpperBar">
         {/* Left Section */}
         <div className="LeftSection">
-          <h2 className="BigFont">Let's get in touch</h2>
+          <h2 className="BigFont">Let&apos;s get in touch</h2>
           <p className="FollowUpText">
             Your interest means a lot to me. Thanks for visiting, Feel free to reach out if you have any questions or just want to connect.
           </p>
@@ -27,7 +26,7 @@ export default function Footer() {
           <div className="RightBundle">
             <h3 className="Name">Sridhar Reddy</h3>
             <p className="Description">Full Stack Developer — Hyderabad, India</p>
-            <p className="Extra"> Built in under 3 days</p>
+            <p className="Extra"> Built in under 9 days</p>
           </div>
 
           {/* Social Links */}

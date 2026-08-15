@@ -1,4 +1,4 @@
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui";
 import "./header.styles.css";
 
 export default function Header() {

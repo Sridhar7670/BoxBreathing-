@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/cards";
+import { Card } from "@/components/ui";
 import "./HowItWorks.styles.css";
 
 export default function HowItWorks() {

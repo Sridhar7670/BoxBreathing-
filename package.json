@@ -1,18 +1,14 @@
 {
   "name": "boxbreathing",
   "private": true,
-  "packageManager": "yarn@4.9.2",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "packageManager": "pnpm@11.20.0",
   "scripts": {
-    "dev:web": "yarn workspace web dev",
-    "dev:api": "yarn workspace api start:dev",
-    "build:web": "yarn workspace web build",
-    "build:api": "yarn workspace api build",
-    "lint:web": "yarn workspace web lint",
-    "lint:api": "yarn workspace api lint"
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api start:dev",
+    "build:web": "pnpm --filter web build",
+    "build:api": "pnpm --filter api build",
+    "lint:web": "pnpm --filter web lint",
+    "lint:api": "pnpm --filter api lint"
   },
   "dependencies": {
     "clsx": "^2.1.1",

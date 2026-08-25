@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Breathable from "./Breathable";
 import Customize from "./Customize";
 import { PhaseType } from "./breathing.types";
@@ -28,12 +28,15 @@ export default function Breathing() {
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(DEFAULT_PHASE_SECONDS);
   const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
 
-  const phaseDurations: Record<PhaseType, number> = {
-    Inhale: inhaleTime,
-    Hold: holdTime,
-    Exhale: exhaleTime,
-    Pause: pauseTime,
-  };
+  const phaseDurations: Record<PhaseType, number> = useMemo(
+    () => ({
+      Inhale: inhaleTime,
+      Hold: holdTime,
+      Exhale: exhaleTime,
+      Pause: pauseTime,
+    }),
+    [inhaleTime, holdTime, exhaleTime, pauseTime]
+  );
 
   const totalDurationSeconds = sessionDuration * 60;
   const roundDurationSeconds = Math.max(1, inhaleTime + holdTime + exhaleTime + pauseTime);
@@ -45,12 +48,8 @@ export default function Breathing() {
     Math.floor(totalElapsedSeconds / roundDurationSeconds) + 1
   );
 
-  // While the session is paused, the countdown should follow the sliders as they move.
-  useEffect(() => {
-    if (!isActive) {
-      setPhaseTimeLeft(phaseDurations[currentPhase]);
-    }
-  }, [inhaleTime, holdTime, exhaleTime, pauseTime, currentPhase, isActive]);
+  // While the session is paused, the countdown display should follow the sliders as they move.
+  const displayedPhaseTimeLeft = isActive ? phaseTimeLeft : phaseDurations[currentPhase];
 
   // The session clock: one tick per second while the session is running.
   useEffect(() => {
@@ -80,18 +79,15 @@ export default function Breathing() {
 
     const interval = setInterval(advanceOneSecond, TICK_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [
-    isActive,
-    currentPhase,
-    inhaleTime,
-    holdTime,
-    exhaleTime,
-    pauseTime,
-    totalDurationSeconds,
-    metronome,
-  ]);
+  }, [isActive, currentPhase, phaseDurations, totalDurationSeconds, metronome]);
 
-  const handleToggleStart = () => setIsActive((active) => !active);
+  const handleToggleStart = () => {
+    if (!isActive) {
+      // Resuming (or starting fresh): sync the live countdown to what's currently displayed.
+      setPhaseTimeLeft(phaseDurations[currentPhase]);
+    }
+    setIsActive((active) => !active);
+  };
 
   return (
     <div className="BreathingLayout">
@@ -101,7 +97,7 @@ export default function Breathing() {
         <div className="BreathingColumn">
           <Breathable
             currentPhase={currentPhase}
-            phaseTimeLeft={phaseTimeLeft}
+            phaseTimeLeft={displayedPhaseTimeLeft}
             phaseTotalTime={phaseDurations[currentPhase]}
             isActive={isActive}
             onToggleStart={handleToggleStart}

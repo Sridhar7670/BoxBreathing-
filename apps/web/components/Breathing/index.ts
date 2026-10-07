@@ -1,6 +1,13 @@
 export { default as Breathing } from "./Breathing";
 export { default as Breathable } from "./Breathable";
+export { default as PhaseRing } from "./PhaseRing";
+export { default as PhaseArc } from "./PhaseArc";
 export { default as Customize } from "./Customize";
-export { default as Progress } from "./progress";
+export { default as Progress } from "./Progress";
+export { useBreathingSession } from "./useBreathingSession";
 export * from "./breathing.types";
+export * from "./breathing.interfaces";
+export * from "./breathing.constants";
 export * from "./breathing.utils";
+export * from "./breathing.audio";
+export * from "./ring.geometry";

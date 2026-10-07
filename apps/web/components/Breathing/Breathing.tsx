@@ -1,136 +1,80 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+
 import Breathable from "./Breathable";
 import Customize from "./Customize";
-import { PhaseType } from "./breathing.types";
-import { getNextPhase, playMetronomeBeep } from "./breathing.utils";
+import Progress from "./Progress";
+import type { MetronomeLevel, PhaseSeconds } from "./breathing.types";
+import {
+  DEFAULT_METRONOME,
+  DEFAULT_PHASE_SECONDS,
+  DEFAULT_SESSION_MINUTES,
+} from "./breathing.constants";
+import { useBreathingSession } from "./useBreathingSession";
 import "./Breathing.styles.css";
 
-const DEFAULT_PHASE_SECONDS = 4;
-const DEFAULT_SESSION_MINUTES = 5;
-const TICK_INTERVAL_MS = 1000;
-
+/**
+ * The breathing screen: the circle on one side, its settings on the other, and
+ * the session's progress underneath.
+ *
+ * This component owns nothing but the three settings — all of the timing lives
+ * in `useBreathingSession`.
+ */
 export default function Breathing() {
-  // How long each phase of a round lasts, in seconds.
-  const [inhaleTime, setInhaleTime] = useState(DEFAULT_PHASE_SECONDS);
-  const [holdTime, setHoldTime] = useState(DEFAULT_PHASE_SECONDS);
-  const [exhaleTime, setExhaleTime] = useState(DEFAULT_PHASE_SECONDS);
-  const [pauseTime, setPauseTime] = useState(DEFAULT_PHASE_SECONDS);
+  const [phaseSeconds, setPhaseSeconds] = useState<PhaseSeconds>(DEFAULT_PHASE_SECONDS);
+  const [sessionMinutes, setSessionMinutes] = useState(DEFAULT_SESSION_MINUTES);
+  const [metronome, setMetronome] = useState<MetronomeLevel>(DEFAULT_METRONOME);
 
-  // Session-wide settings.
-  const [sessionDuration, setSessionDuration] = useState(DEFAULT_SESSION_MINUTES); // minutes
-  const [metronome, setMetronome] = useState("Off");
-
-  // Where we currently are in the session.
-  const [isActive, setIsActive] = useState(false);
-  const [currentPhase, setCurrentPhase] = useState<PhaseType>("Inhale");
-  const [phaseTimeLeft, setPhaseTimeLeft] = useState(DEFAULT_PHASE_SECONDS);
-  const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0);
-
-  const phaseDurations: Record<PhaseType, number> = {
-    Inhale: inhaleTime,
-    Hold: holdTime,
-    Exhale: exhaleTime,
-    Pause: pauseTime,
-  };
-
-  const totalDurationSeconds = sessionDuration * 60;
-  const roundDurationSeconds = Math.max(1, inhaleTime + holdTime + exhaleTime + pauseTime);
-
-  // How many full rounds fit in the session, and which one we are on right now.
-  const totalRounds = Math.max(1, Math.round(totalDurationSeconds / roundDurationSeconds));
-  const currentRound = Math.min(
-    totalRounds,
-    Math.floor(totalElapsedSeconds / roundDurationSeconds) + 1
-  );
-
-  // While the session is paused, the countdown should follow the sliders as they move.
-  useEffect(() => {
-    if (!isActive) {
-      setPhaseTimeLeft(phaseDurations[currentPhase]);
-    }
-  }, [inhaleTime, holdTime, exhaleTime, pauseTime, currentPhase, isActive]);
-
-  // The session clock: one tick per second while the session is running.
-  useEffect(() => {
-    if (!isActive) return;
-
-    const advanceOneSecond = () => {
-      // Count the second, and stop the session once the full duration is reached.
-      setTotalElapsedSeconds((elapsed) => {
-        if (elapsed + 1 >= totalDurationSeconds) {
-          setIsActive(false);
-          return totalDurationSeconds;
-        }
-        return elapsed + 1;
-      });
-
-      // Count down the current phase, moving to the next phase when it runs out.
-      setPhaseTimeLeft((timeLeft) => {
-        playMetronomeBeep(metronome);
-
-        if (timeLeft > 1) return timeLeft - 1;
-
-        const nextPhase = getNextPhase(currentPhase);
-        setCurrentPhase(nextPhase);
-        return phaseDurations[nextPhase];
-      });
-    };
-
-    const interval = setInterval(advanceOneSecond, TICK_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, [
-    isActive,
-    currentPhase,
-    inhaleTime,
-    holdTime,
-    exhaleTime,
-    pauseTime,
-    totalDurationSeconds,
-    metronome,
-  ]);
-
-  const handleToggleStart = () => setIsActive((active) => !active);
+  const session = useBreathingSession({ phaseSeconds, sessionMinutes, metronome });
 
   return (
     <div className="BreathingLayout">
-      {/* Two equal columns from md up, stacked on mobile. */}
       <div className="BreathingGrid">
         {/* Left: the breathing circle and session status. */}
         <div className="BreathingColumn">
           <Breathable
-            currentPhase={currentPhase}
-            phaseTimeLeft={phaseTimeLeft}
-            phaseTotalTime={phaseDurations[currentPhase]}
-            isActive={isActive}
-            onToggleStart={handleToggleStart}
-            totalElapsedSeconds={totalElapsedSeconds}
-            totalDurationSeconds={totalDurationSeconds}
-            currentRound={currentRound}
-            totalRounds={totalRounds}
+            phase={session.phase}
+            secondsLeft={session.secondsLeft}
+            phaseSeconds={phaseSeconds}
+            round={session.round}
+            totalRounds={session.totalRounds}
+            status={session.status}
+            breath={session.breath}
+            roundProgress={session.roundProgress}
+            elapsedSeconds={session.elapsedSeconds}
+            totalSeconds={session.totalSeconds}
+            onToggle={session.toggle}
           />
         </div>
 
         {/* Right: the settings panel. */}
         <div className="BreathingColumn">
           <Customize
-            inhaleTime={inhaleTime}
-            setInhaleTime={setInhaleTime}
-            holdTime={holdTime}
-            setHoldTime={setHoldTime}
-            exhaleTime={exhaleTime}
-            setExhaleTime={setExhaleTime}
-            pauseTime={pauseTime}
-            setPauseTime={setPauseTime}
-            sessionDuration={sessionDuration}
-            setSessionDuration={setSessionDuration}
+            phaseSeconds={phaseSeconds}
+            onPhaseSecondsChange={setPhaseSeconds}
+            sessionMinutes={sessionMinutes}
+            onSessionMinutesChange={setSessionMinutes}
             metronome={metronome}
-            setMetronome={setMetronome}
-            isActive={isActive}
-            onToggleStart={handleToggleStart}
+            onMetronomeChange={setMetronome}
+            status={session.status}
+            onToggle={session.toggle}
           />
         </div>
+      </div>
+
+      {/* Below both columns: overall session progress, play/pause and reset. */}
+      <div className="BreathingProgressRow">
+        <Progress
+          sessionProgress={session.sessionProgress}
+          elapsedSeconds={session.elapsedSeconds}
+          totalSeconds={session.totalSeconds}
+          roundsCompleted={session.roundsCompleted}
+          totalRounds={session.totalRounds}
+          status={session.status}
+          onToggle={session.toggle}
+          onReset={session.reset}
+        />
       </div>
     </div>
   );

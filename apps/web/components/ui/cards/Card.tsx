@@ -1,4 +1,4 @@
-import { CardProps } from "./crad.types";
+import type { CardProps } from "./Card.types";
 import { cn } from "@/apps/lib/util";
 
 

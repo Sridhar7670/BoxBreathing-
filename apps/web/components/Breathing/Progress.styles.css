@@ -1,0 +1,67 @@
+@reference "../../app/globals.css";
+
+/* Session progress bar with play/pause and reset controls. */
+
+.Progress {
+  @apply w-full bg-[#e4ebe0] p-6 rounded-[24px] border border-[#d5e0d0] shadow-sm
+    flex flex-col md:flex-row items-center gap-6 justify-between;
+}
+
+.ProgressControls {
+  @apply flex items-center gap-4;
+}
+
+.ProgressPlayButton {
+  @apply w-12 h-12 rounded-full bg-[#6b8566] text-white flex items-center justify-center
+    font-bold text-lg hover:bg-[#5a7355] transition-colors cursor-pointer shrink-0;
+}
+
+.ProgressIcon {
+  @apply w-5 h-5 fill-current;
+}
+
+/* The play triangle looks off-centre in a circle, so nudge it right. */
+.ProgressIconPlay {
+  @apply ml-0.5;
+}
+
+.ProgressResetButton {
+  @apply px-4 py-2 rounded-full text-xs font-semibold text-[#4b554b]
+    bg-[#d3e0ce] hover:bg-[#c2d2bc] transition-colors cursor-pointer
+    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#d3e0ce];
+}
+
+/* A labelled readout, e.g. "Cycles 4 / 18". The label is quiet, the value is not. */
+.ProgressStat {
+  @apply text-xs font-medium text-[#6a7566] whitespace-nowrap;
+}
+
+.ProgressStatValue {
+  @apply block text-sm font-semibold text-[#2c3328];
+
+  font-variant-numeric: tabular-nums;
+}
+
+.ProgressBar {
+  @apply flex-1 w-full flex items-center gap-3;
+}
+
+.ProgressBarTrack {
+  @apply w-full h-3 bg-[#d1dec9] rounded-full overflow-hidden;
+}
+
+/*
+  Sized to the full track and then scaled down from the left by the session
+  clock, so the fill moves on the compositor rather than through layout.
+*/
+.ProgressBarFill {
+  @apply w-full h-full bg-[#6b8566] rounded-full origin-left;
+
+  will-change: transform;
+}
+
+.ProgressPercent {
+  @apply text-xs font-semibold text-[#4b554b] w-10 text-right;
+
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,111 @@
+@reference "../../app/globals.css";
+
+/* The four-quarter ring: one coloured arc per phase, a travelling marker, and
+   a label at each compass point. */
+
+.PhaseRing {
+  @apply absolute inset-0 pointer-events-none;
+}
+
+.PhaseRingSvg {
+  @apply w-full h-full overflow-visible;
+}
+
+/* ---- The arcs ---- */
+
+/* Each quarter carries its own colour, inherited by both of its arcs. */
+.PhaseArc[data-phase="Inhale"] {
+  --arc-color: #4f7d55;
+}
+
+.PhaseArc[data-phase="Hold"] {
+  --arc-color: #6f9a70;
+}
+
+.PhaseArc[data-phase="Exhale"] {
+  --arc-color: #7fa8a0;
+}
+
+.PhaseArc[data-phase="Pause"] {
+  --arc-color: #a8b9a4;
+}
+
+/* The unfilled part of the quarter: the same colour, mostly faded out, so the
+   whole round is always visible as a shape even before it is breathed through. */
+.PhaseArcTrack {
+  fill: none;
+  stroke: var(--arc-color);
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: 0.16;
+}
+
+/* The part that has been breathed through. */
+.PhaseArcFill {
+  fill: none;
+  stroke: var(--arc-color);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+/* ---- The travelling marker ---- */
+
+.PhaseRingMarker {
+  /* The default for SVG resolves lengths against the viewBox, so this is the
+     centre of the 100 x 100 drawing box — the point the marker orbits. */
+  transform-origin: 50px 50px;
+}
+
+.PhaseRingMarker circle {
+  fill: #ffffff;
+  stroke: #8aa886;
+  stroke-width: 1;
+  filter: drop-shadow(0 1px 2px rgb(44 51 40 / 0.28));
+}
+
+/* ---- The labels ---- */
+
+.PhaseRingLabel {
+  @apply absolute text-[10px] font-bold uppercase tracking-[0.18em]
+    text-[#93a08f] transition-colors duration-500;
+}
+
+/* The phase currently running takes its own colour and darkens. */
+.PhaseRingLabel[data-active="true"][data-phase="Inhale"] {
+  @apply text-[#4f7d55];
+}
+
+.PhaseRingLabel[data-active="true"][data-phase="Hold"] {
+  @apply text-[#5c8a5e];
+}
+
+.PhaseRingLabel[data-active="true"][data-phase="Exhale"] {
+  @apply text-[#5f8c84];
+}
+
+.PhaseRingLabel[data-active="true"][data-phase="Pause"] {
+  @apply text-[#7d8f79];
+}
+
+/* Inhale sits at twelve o'clock, then the rest follow clockwise. The two on the
+   sides are turned on their edge so they hug the ring instead of sticking out. */
+.PhaseRingLabel--0 {
+  @apply left-1/2 -translate-x-1/2 -top-1;
+}
+
+.PhaseRingLabel--1 {
+  @apply top-1/2 -translate-y-1/2 -right-1.5;
+
+  writing-mode: vertical-rl;
+}
+
+.PhaseRingLabel--2 {
+  @apply left-1/2 -translate-x-1/2 -bottom-1;
+}
+
+.PhaseRingLabel--3 {
+  @apply top-1/2 -translate-y-1/2 -left-1.5;
+
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+}

@@ -1,24 +1,21 @@
 "use client";
 
-import React from "react";
-import { CustomizeProps } from "./breathing.types";
+import type { CustomizeProps } from "./breathing.interfaces";
+import type { MetronomeLevel, PhaseSeconds } from "./breathing.types";
+import { METRONOME_OPTIONS } from "./breathing.audio";
 import {
-  METRONOME_OPTIONS,
-  PHASE_SECONDS_MAX,
-  PHASE_SECONDS_MIN,
-} from "./breathing.utils";
+  PHASES_PER_ROUND,
+  PHASE_SECONDS_OPTIONS,
+  SESSION_MINUTE_OPTIONS,
+} from "./breathing.constants";
 import "./Customize.styles.css";
 
-const SESSION_DURATION_OPTIONS = [1, 3, 5, 10, 15]; // minutes
-
-/** Fills the slider track green up to the current value and grey after it. */
-function getTrackBackground(value: number) {
-  const filledPercent =
-    ((value - PHASE_SECONDS_MIN) / (PHASE_SECONDS_MAX - PHASE_SECONDS_MIN)) * 100;
-  return `linear-gradient(to right, #6A8466 ${filledPercent}%, #D5DFD1 ${filledPercent}%)`;
+/** Writes a phase length the way people say it out loud: 4 becomes "4-4-4-4". */
+function describePattern(seconds: PhaseSeconds): string {
+  return Array(PHASES_PER_ROUND).fill(seconds).join("-");
 }
 
-/** A rounded option button, used for both session duration and metronome. */
+/** A rounded option button, used by all three settings. */
 function PillButton({
   label,
   isSelected,
@@ -32,6 +29,7 @@ function PillButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={isSelected}
       className={`PillButton ${isSelected ? "PillButtonSelected" : "PillButtonIdle"}`}
     >
       {label}
@@ -40,95 +38,78 @@ function PillButton({
 }
 
 export default function Customize({
-  inhaleTime,
-  setInhaleTime,
-  holdTime,
-  setHoldTime,
-  exhaleTime,
-  setExhaleTime,
-  pauseTime,
-  setPauseTime,
-  sessionDuration,
-  setSessionDuration,
+  phaseSeconds,
+  onPhaseSecondsChange,
+  sessionMinutes,
+  onSessionMinutesChange,
   metronome,
-  setMetronome,
-  isActive,
-  onToggleStart,
+  onMetronomeChange,
+  status,
+  onToggle,
 }: CustomizeProps) {
-  const phaseSliders = [
-    { label: "Inhale time", value: inhaleTime },
-    { label: "Hold time", value: holdTime },
-    { label: "Exhale time", value: exhaleTime },
-    { label: "Pause time", value: pauseTime },
-  ];
+  const isRunning = status === "running";
 
-  // Box breathing means all four phases are the same length, so moving any one
-  // slider moves all of them together (3-3-3-3, 4-4-4-4, and so on).
-  const setAllPhaseTimes = (seconds: number) => {
-    setInhaleTime(seconds);
-    setHoldTime(seconds);
-    setExhaleTime(seconds);
-    setPauseTime(seconds);
-  };
+  const startButtonLabel = isRunning
+    ? "Pause session"
+    : status === "paused"
+      ? "Resume session"
+      : status === "finished"
+        ? "Start another session"
+        : "Start breathing session";
 
   return (
     <div className="Customize">
       <h2 className="CustomizeHeading">Session settings</h2>
       <p className="CustomizeIntro">
-        Any phase from {PHASE_SECONDS_MIN} to {PHASE_SECONDS_MAX} seconds. Keep them equal for a
-        true box ({inhaleTime}-{holdTime}-{exhaleTime}-{pauseTime}).
+        Every phase runs the same length — that is what makes it a box. Pick the
+        rhythm and the four quarters of the ring follow it exactly.
       </p>
 
-      {/* Phase length sliders */}
-      <div className="CustomizeSliders">
-        {phaseSliders.map((slider) => (
-          <div key={slider.label} className="SliderRow">
-            <div className="SliderLabelRow">
-              <span className="SliderLabel">{slider.label}</span>
-              <span className="SliderValue">{slider.value}s</span>
-            </div>
-
-            <div className="SliderTrack">
-              <input
-                type="range"
-                min={PHASE_SECONDS_MIN}
-                max={PHASE_SECONDS_MAX}
-                step={1}
-                value={slider.value}
-                onChange={(event) => setAllPhaseTimes(Number(event.target.value))}
-                style={{ background: getTrackBackground(slider.value) }}
-                className="SliderInput"
-              />
-            </div>
-          </div>
-        ))}
+      {/*
+        A phase length rather than four separate ones. Box breathing keeps all
+        four equal, so a single choice describes the whole pattern.
+      */}
+      <div className="CustomizeField">
+        <span className="CustomizeFieldLabel">Pattern</span>
+        <div className="CustomizeOptions">
+          {PHASE_SECONDS_OPTIONS.map((seconds) => (
+            <PillButton
+              key={seconds}
+              label={describePattern(seconds)}
+              isSelected={phaseSeconds === seconds}
+              onClick={() => onPhaseSecondsChange(seconds)}
+            />
+          ))}
+        </div>
+        <p className="CustomizeFieldHint">
+          {phaseSeconds} seconds in, {phaseSeconds} held, {phaseSeconds} out,{" "}
+          {phaseSeconds} held again.
+        </p>
       </div>
 
-      {/* Session duration */}
-      <div className="CustomizeFieldDuration">
-        <label className="CustomizeFieldLabel">Session duration</label>
+      <div className="CustomizeField">
+        <span className="CustomizeFieldLabel">Session duration</span>
         <div className="CustomizeOptions">
-          {SESSION_DURATION_OPTIONS.map((minutes) => (
+          {SESSION_MINUTE_OPTIONS.map((minutes) => (
             <PillButton
               key={minutes}
               label={`${minutes} min`}
-              isSelected={sessionDuration === minutes}
-              onClick={() => setSessionDuration(minutes)}
+              isSelected={sessionMinutes === minutes}
+              onClick={() => onSessionMinutesChange(minutes)}
             />
           ))}
         </div>
       </div>
 
-      {/* Metronome */}
-      <div className="CustomizeFieldMetronome">
-        <label className="CustomizeFieldLabel">Metronome</label>
+      <div className="CustomizeField">
+        <span className="CustomizeFieldLabel">Metronome</span>
         <div className="CustomizeOptions">
-          {METRONOME_OPTIONS.map((option) => (
+          {METRONOME_OPTIONS.map((level: MetronomeLevel) => (
             <PillButton
-              key={option}
-              label={option}
-              isSelected={metronome === option}
-              onClick={() => setMetronome(option)}
+              key={level}
+              label={level}
+              isSelected={metronome === level}
+              onClick={() => onMetronomeChange(level)}
             />
           ))}
         </div>
@@ -136,10 +117,10 @@ export default function Customize({
 
       <button
         type="button"
-        onClick={onToggleStart}
-        className={`StartButton ${isActive ? "StartButtonActive" : "StartButtonIdle"}`}
+        onClick={onToggle}
+        className={`StartButton ${isRunning ? "StartButtonActive" : "StartButtonIdle"}`}
       >
-        {isActive ? "Pause breathing session" : "Start breathing session"}
+        {startButtonLabel}
       </button>
     </div>
   );

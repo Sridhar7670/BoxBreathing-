@@ -14,3 +14,8 @@
 .BreathingColumn {
   @apply w-full flex justify-center;
 }
+
+/* Session progress sits under both columns, spanning the full width. */
+.BreathingProgressRow {
+  @apply mt-10 md:mt-12;
+}

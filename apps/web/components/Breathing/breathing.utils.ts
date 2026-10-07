@@ -1,72 +1,41 @@
-import { PhaseType } from "./breathing.types";
+/**
+ * Small pure helpers. Nothing here touches React, the clock, or the DOM — give
+ * each function the same numbers and it returns the same answer every time.
+ */
 
-/** The four phases of a box-breathing round, in the order they play. */
-export const PHASE_ORDER: PhaseType[] = ["Inhale", "Hold", "Exhale", "Pause"];
+import type { PhaseType } from "./breathing.types";
 
-/** How long any single phase is allowed to be, in seconds. */
-export const PHASE_SECONDS_MIN = 1;
-export const PHASE_SECONDS_MAX = 6;
-
-/** Returns the phase that comes after `phase`, wrapping back to "Inhale". */
-export function getNextPhase(phase: PhaseType): PhaseType {
-  const nextIndex = (PHASE_ORDER.indexOf(phase) + 1) % PHASE_ORDER.length;
-  return PHASE_ORDER[nextIndex];
+/** Keeps a number inside 0…1, so a late animation frame can never overshoot. */
+export function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
 }
 
-/** Metronome levels the user can pick, and how loud each one is (0 = silent). */
-export const METRONOME_VOLUMES: Record<string, number> = {
-  Off: 0,
-  Soft: 0.05,
-  Med: 0.15,
-  Loud: 0.3,
-};
-
-export const METRONOME_OPTIONS = Object.keys(METRONOME_VOLUMES);
-
-const BEEP_FREQUENCY_HZ = 440;
-const BEEP_LENGTH_SECONDS = 0.08;
-
-// Browsers only allow a handful of AudioContexts, so we create one and reuse it.
-let sharedAudioContext: AudioContext | null = null;
-
-function getAudioContext(): AudioContext {
-  if (!sharedAudioContext) {
-    const AudioContextClass =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    sharedAudioContext = new AudioContextClass();
-  }
-
-  // Browsers suspend audio until the user interacts with the page.
-  if (sharedAudioContext.state === "suspended") {
-    sharedAudioContext.resume();
-  }
-
-  return sharedAudioContext;
+/**
+ * Eases 0 → 1 along a sine curve: slow at both ends, quickest in the middle.
+ *
+ * This is what makes the circle feel like a breath rather than a machine —
+ * lungs do not fill at a constant rate.
+ */
+export function easeInOutSine(progress: number): number {
+  return 0.5 * (1 - Math.cos(Math.PI * clamp01(progress)));
 }
 
-/** Plays one short tick for the given metronome level. Does nothing when it is "Off". */
-export function playMetronomeBeep(level: string): void {
-  const volume = METRONOME_VOLUMES[level] ?? 0;
-  if (volume === 0) return;
-
-  try {
-    const context = getAudioContext();
-
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-
-    gain.gain.value = volume;
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(BEEP_FREQUENCY_HZ, context.currentTime);
-
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-
-    oscillator.start();
-    oscillator.stop(context.currentTime + BEEP_LENGTH_SECONDS);
-  } catch {
-    // Audio is a nice-to-have; if the browser blocks it, the session still runs.
+/**
+ * How full of air the lungs are during a phase, from 0 (empty) to 1 (full).
+ *
+ * The circle scales straight from this number, so the picture cannot drift away
+ * from the countdown — both are read from the same clock.
+ */
+export function getBreathAmount(phase: PhaseType, phaseProgress: number): number {
+  switch (phase) {
+    case "Inhale":
+      return easeInOutSine(phaseProgress);
+    case "Hold":
+      return 1;
+    case "Exhale":
+      return 1 - easeInOutSine(phaseProgress);
+    case "Pause":
+      return 0;
   }
 }
 
@@ -78,8 +47,9 @@ export function formatClock(
   totalSeconds: number,
   { padMinutes = false }: { padMinutes?: boolean } = {}
 ): string {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
 
   const minutesText = padMinutes ? String(minutes).padStart(2, "0") : String(minutes);
   const secondsText = String(seconds).padStart(2, "0");

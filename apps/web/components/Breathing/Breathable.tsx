@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion, useTransform } from "motion/react";
+import { useSyncExternalStore } from "react";
+import { motion, useTransform } from "motion/react";
 import type { MotionValue } from "motion/react";
 
 import PhaseRing from "./PhaseRing";
@@ -39,6 +40,31 @@ const STATUS_HINTS = {
   paused: "Paused — tap to resume",
   finished: "Session complete",
 } as const;
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeToReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+/**
+ * Whether the visitor has asked their device for reduced motion.
+ *
+ * This is deliberately not motion's own `useReducedMotion`. That hook already
+ * knows the answer on the very first client render, but the server cannot, so
+ * the two disagree about the circle's starting scale and React reports a
+ * hydration mismatch. Here the server snapshot is always `false`: React
+ * hydrates with that, then switches to the real setting straight afterwards.
+ */
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(
+    subscribeToReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false
+  );
+}
 
 /**
  * Maps the breath signal (0 = exhaled, 1 = inhaled) onto a range of values.
@@ -112,7 +138,7 @@ export default function Breathable({
   totalSeconds,
   onToggle,
 }: BreathableProps) {
-  const prefersReducedMotion = useReducedMotion() ?? false;
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const orbScale = useBreathRange(breath, ORB_SCALE, prefersReducedMotion);
   const readoutScale = useBreathRange(breath, READOUT_SCALE, prefersReducedMotion);

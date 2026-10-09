@@ -1,18 +1,39 @@
 @reference "../../app/globals.css";
 
 /* The breathing circle: phase name, countdown, round progress and session timers.
-   The ring around it has its own stylesheet, PhaseRing.styles.css. */
+   The ring around it has its own stylesheet, PhaseRing.styles.css.
+
+   Sections, top to bottom:
+     1. The column    layout, plus the colours this file is built from
+     2. The circle    stage, glow and orb, with a colour per phase
+     3. The readout   the text that rides on the circle
+     4. Under it      guidance, round count, phase dots and timers */
+
+/* ==== 1. The column ==== */
 
 .Breathable {
   @apply flex flex-col items-center justify-center py-6 px-4 w-full select-none;
+
+  /* Text, from strongest to quietest. */
+  --ink-strong: #2c3328;
+  --ink-timer: #4b554b;
+  --ink: #5a6656;
+  --ink-soft: #6a7566;
+
+  /* Sage green, used for the focus ring and the active phase dot. */
+  --accent: #6a8466;
+
+  /* Pale greens for the inactive dots and the divider between the timers. */
+  --dot-idle: #d3e0ce;
+  --divider: #c2d0be;
 }
 
-/* ---- The circle ---- */
+/* ==== 2. The circle ==== */
 
 /*
   Every layer of the circle is stacked in the same grid cell, so they stay
-  concentric without any positioning maths. `--phase-color` is set by the
-  data-phase rules below and inherited by all of them.
+  concentric without any positioning maths. `--phase-color` and `--phase-tint`
+  are set by the data-phase rules below and inherited by all of the layers.
 */
 .BreathableStage {
   @apply relative grid place-items-center w-[320px] h-[320px] md:w-[360px] md:h-[360px]
@@ -20,7 +41,7 @@
 
   /* Defaults for both, overridden per phase below. The layers that use them
      each ease their own colour change, so the palette shifts gently. */
-  --phase-color: #6a8466;
+  --phase-color: var(--accent);
   --phase-tint: #e5ece2;
 }
 
@@ -29,10 +50,13 @@
 }
 
 .BreathableStage:focus-visible {
-  @apply ring-2 ring-offset-4 ring-[#6a8466];
+  @apply ring-2 ring-offset-4;
+
+  --tw-ring-color: var(--accent);
 }
 
-/* One colour per phase, matching the arc that quarter of the ring is drawn in. */
+/* One colour per phase, matching the arc that quarter of the ring is drawn in.
+   `color` is the strong shade (glow, shadow); `tint` is the pale fill of the orb. */
 .BreathableStage[data-phase="Inhale"] {
   --phase-color: #4f7d55;
   --phase-tint: #dfead9;
@@ -83,7 +107,7 @@
   will-change: transform;
 }
 
-/* ---- The readout riding on the circle ---- */
+/* ==== 3. The readout riding on the circle ==== */
 
 .BreathableReadout {
   @apply flex flex-col items-center justify-center text-center pointer-events-none px-8;
@@ -92,11 +116,15 @@
 }
 
 .BreathablePhaseLabel {
-  @apply text-[11px] font-bold uppercase tracking-[0.25em] text-[#5a6656] mb-1;
+  @apply text-[11px] font-bold uppercase tracking-[0.25em] mb-1;
+
+  color: var(--ink);
 }
 
 .BreathableCountdown {
-  @apply text-6xl md:text-7xl font-bold text-[#2c3328] leading-none font-sans;
+  @apply text-6xl md:text-7xl font-bold leading-none font-sans;
+
+  color: var(--ink-strong);
 
   /* Equal-width digits, so the number does not shift as it counts down. */
   font-variant-numeric: tabular-nums;
@@ -104,22 +132,27 @@
 
 /* The length of the pattern, e.g. "4s" — a quiet reminder of the rhythm chosen. */
 .BreathablePhaseLength {
-  @apply text-sm font-medium text-[#6a7566] mt-1.5;
+  @apply text-sm font-medium mt-1.5;
 
+  color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- Everything under the circle ---- */
+/* ==== 4. Everything under the circle ==== */
 
 /* The fixed height stops the rest of the column from shifting when a longer or
    shorter line of guidance replaces this one. */
 .BreathableHint {
-  @apply text-sm font-medium text-[#5a6656] text-center leading-snug
+  @apply text-sm font-medium text-center leading-snug
     min-h-[2.5rem] max-w-[260px] mb-2 flex items-center justify-center;
+
+  color: var(--ink);
 }
 
 .BreathableRound {
-  @apply text-[#2c3328] font-bold text-xl mb-3;
+  @apply font-bold text-xl mb-3;
+
+  color: var(--ink-strong);
 }
 
 .BreathablePhaseDots {
@@ -128,27 +161,34 @@
 
 /* One dot per phase. The active modifier is added for the phase currently running. */
 .PhaseDot {
-  @apply block w-2.5 h-2.5 rounded-full bg-[#d3e0ce] transition-colors duration-300;
+  @apply block w-2.5 h-2.5 rounded-full transition-colors duration-300;
+
+  background-color: var(--dot-idle);
 }
 
 .PhaseDotActive {
-  @apply bg-[#6a8466];
+  background-color: var(--accent);
 }
 
 .BreathableCaption {
-  @apply text-xs text-[#6a7566] mb-6;
+  @apply text-xs mb-6;
+
+  color: var(--ink-soft);
 }
 
 .BreathableTimers {
-  @apply flex items-center gap-6 text-sm text-[#4b554b] font-medium;
+  @apply flex items-center gap-6 text-sm font-medium;
+
+  color: var(--ink-timer);
 }
 
 .BreathableTimerValue {
-  @apply font-semibold text-[#2c3328] ml-1;
+  @apply font-semibold ml-1;
 
+  color: var(--ink-strong);
   font-variant-numeric: tabular-nums;
 }
 
 .BreathableTimerDivider {
-  @apply text-[#c2d0be];
+  color: var(--divider);
 }

@@ -1,35 +1,37 @@
 "use client";
 
 import { motion, useReducedMotion, useTransform } from "motion/react";
+import type { MotionValue } from "motion/react";
 
 import PhaseRing from "./PhaseRing";
 import type { BreathableProps } from "./breathing.interfaces";
+import type { PhaseType } from "./breathing.types";
 import { PHASE_HINTS, PHASE_LABELS, PHASE_ORDER } from "./breathing.constants";
 import { formatClock } from "./breathing.utils";
 import "./Breathable.styles.css";
 
+/* ---- How far each layer of the circle breathes ---- */
+
+/** A `[exhaled, inhaled]` pair: the value a layer has at each end of the breath. */
+type BreathRange = readonly [exhaled: number, inhaled: number];
+
 /**
- * How small the circle gets at the bottom of an exhale, and how big at the top
- * of an inhale. The lower bound is deliberately not smaller than this: the phase
- * name and the count sit on the circle, and they have to stay inside its edge
- * even when it is at its smallest.
+ * The circle itself. The low end is deliberately not smaller than this: the
+ * phase name and the count sit on the circle, and they have to stay inside its
+ * edge even when it is at its smallest.
  */
-const ORB_SCALE_EXHALED = 0.78;
-const ORB_SCALE_INHALED = 1;
+const ORB_SCALE: BreathRange = [0.78, 1];
 
 /**
  * The text breathes too, but only slightly. Enough that it reads as part of the
  * circle rather than floating over it, and little enough that the letters are
  * not visibly resampled as they scale.
  */
-const READOUT_SCALE_EXHALED = 0.94;
-const READOUT_SCALE_INHALED = 1;
+const READOUT_SCALE: BreathRange = [0.94, 1];
 
 /** The glow behind the circle breathes a little wider, and fades in as the lungs fill. */
-const GLOW_SCALE_EXHALED = 0.8;
-const GLOW_SCALE_INHALED = 1.1;
-const GLOW_OPACITY_EXHALED = 0.18;
-const GLOW_OPACITY_INHALED = 0.5;
+const GLOW_SCALE: BreathRange = [0.8, 1.1];
+const GLOW_OPACITY: BreathRange = [0.18, 0.5];
 
 /** What the line under the circle says when the session is not running. */
 const STATUS_HINTS = {
@@ -37,6 +39,65 @@ const STATUS_HINTS = {
   paused: "Paused — tap to resume",
   finished: "Session complete",
 } as const;
+
+/**
+ * Maps the breath signal (0 = exhaled, 1 = inhaled) onto a range of values.
+ *
+ * The result is a motion value the session clock updates on every frame, so a
+ * layer driven by it can never fall out of step with the number in the middle.
+ * With `holdStill` the range collapses to a single value, which is how scale
+ * is switched off for people who have asked for reduced motion.
+ */
+function useBreathRange(
+  breath: MotionValue<number>,
+  range: BreathRange,
+  holdStill = false
+): MotionValue<number> {
+  return useTransform(breath, [0, 1], holdStill ? [1, 1] : [...range]);
+}
+
+/* ---- Small pieces of the layout ---- */
+
+/** One dot per phase; the dot for the current phase is highlighted. */
+function PhaseDots({ activePhase }: { activePhase: PhaseType }) {
+  return (
+    <div className="BreathablePhaseDots" aria-hidden="true">
+      {PHASE_ORDER.map((phase) => (
+        <span
+          key={phase}
+          className={`PhaseDot ${phase === activePhase ? "PhaseDotActive" : ""}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** Time spent so far, beside the length of the whole session. */
+function SessionTimers({
+  elapsedSeconds,
+  totalSeconds,
+}: {
+  elapsedSeconds: number;
+  totalSeconds: number;
+}) {
+  return (
+    <div className="BreathableTimers">
+      <span>
+        Elapsed
+        <span className="BreathableTimerValue">{formatClock(elapsedSeconds)}</span>
+      </span>
+
+      <span className="BreathableTimerDivider">|</span>
+
+      <span>
+        Session
+        <span className="BreathableTimerValue">{formatClock(totalSeconds)}</span>
+      </span>
+    </div>
+  );
+}
+
+/* ---- The component ---- */
 
 export default function Breathable({
   phase,
@@ -51,27 +112,12 @@ export default function Breathable({
   totalSeconds,
   onToggle,
 }: BreathableProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion() ?? false;
 
-  // The circle is scaled straight from the breath signal, which the session
-  // clock writes on every frame. Nothing here holds its own timing, so the
-  // animation cannot fall out of step with the number in the middle.
-  const orbScale = useTransform(
-    breath,
-    [0, 1],
-    prefersReducedMotion ? [1, 1] : [ORB_SCALE_EXHALED, ORB_SCALE_INHALED]
-  );
-  const readoutScale = useTransform(
-    breath,
-    [0, 1],
-    prefersReducedMotion ? [1, 1] : [READOUT_SCALE_EXHALED, READOUT_SCALE_INHALED]
-  );
-  const glowScale = useTransform(
-    breath,
-    [0, 1],
-    prefersReducedMotion ? [1, 1] : [GLOW_SCALE_EXHALED, GLOW_SCALE_INHALED]
-  );
-  const glowOpacity = useTransform(breath, [0, 1], [GLOW_OPACITY_EXHALED, GLOW_OPACITY_INHALED]);
+  const orbScale = useBreathRange(breath, ORB_SCALE, prefersReducedMotion);
+  const readoutScale = useBreathRange(breath, READOUT_SCALE, prefersReducedMotion);
+  const glowScale = useBreathRange(breath, GLOW_SCALE, prefersReducedMotion);
+  const glowOpacity = useBreathRange(breath, GLOW_OPACITY);
 
   const isRunning = status === "running";
   const hint = isRunning ? PHASE_HINTS[phase] : STATUS_HINTS[status];
@@ -79,6 +125,9 @@ export default function Breathable({
   // The count is a countdown within a phase. Once the session is over the last
   // phase has run out, so there is nothing left to count.
   const countdown = status === "finished" ? 0 : secondsLeft;
+
+  // `round` can step one past the end as the session finishes; never show that.
+  const displayedRound = Math.min(round, totalRounds);
 
   return (
     <div className="Breathable">
@@ -117,34 +166,14 @@ export default function Breathable({
       <p className="BreathableHint">{hint}</p>
 
       <p className="BreathableRound">
-        Round {Math.min(round, totalRounds)} of {totalRounds}
+        Round {displayedRound} of {totalRounds}
       </p>
 
-      {/* One dot per phase; the dot for the current phase is highlighted. */}
-      <div className="BreathablePhaseDots" aria-hidden="true">
-        {PHASE_ORDER.map((phaseName) => (
-          <span
-            key={phaseName}
-            className={`PhaseDot ${phaseName === phase ? "PhaseDotActive" : ""}`}
-          />
-        ))}
-      </div>
+      <PhaseDots activePhase={phase} />
 
       <p className="BreathableCaption">One round = inhale · hold · exhale · hold</p>
 
-      <div className="BreathableTimers">
-        <span>
-          Elapsed
-          <span className="BreathableTimerValue">{formatClock(elapsedSeconds)}</span>
-        </span>
-
-        <span className="BreathableTimerDivider">|</span>
-
-        <span>
-          Session
-          <span className="BreathableTimerValue">{formatClock(totalSeconds)}</span>
-        </span>
-      </div>
+      <SessionTimers elapsedSeconds={elapsedSeconds} totalSeconds={totalSeconds} />
     </div>
   );
 }

@@ -1,0 +1,13 @@
+# Netlify build settings for the web app. The NestJS API is not deployed here.
+[build]
+  command = "pnpm --filter web build"
+  publish = "apps/web/out"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Fingerprinted build assets never change, so browsers can cache them for good.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
